@@ -1,0 +1,4 @@
+personalAssets/
+logs/
+node_modules/
+.eslintrc.js

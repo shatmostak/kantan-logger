@@ -1,0 +1,27 @@
+{
+  "name": "kantan-logger",
+  "version": "1.0.0",
+  "description": "easy logger",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "easy",
+    "logger",
+    "kantan"
+  ],
+  "author": "Will Shostak <william.shostak@gmail.com> - Matt Shostak <matthewpshostak@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "find-remove": "^2.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.7.1",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
+  }
+}
