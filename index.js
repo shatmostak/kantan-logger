@@ -1,3 +1,11 @@
+/*
+ * @name       kantan-logger
+ * @version    1.0.0
+ * @date       2019-11-27
+ * @author     Will Shostak <william.shostak@gmail.com> - Matt Shostak <matthewpshostak@gmail.com>
+ * @license    ISC License
+ */
+
 const EventEmitter = require('events').EventEmitter
 const logifier = new EventEmitter()
 const findRemoveSync = require('find-remove')
