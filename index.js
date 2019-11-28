@@ -22,10 +22,9 @@ class Kantan {
     const dateStamp = dateformat(now, 'mm-dd-yy')
     const CURRENT_DIR = path.dirname(require.main.filename)
     const logPath = path.normalize(`${CURRENT_DIR}/${logDirPath}${logDirName}`)
-    if (!fs.existsSync(logPath)) {
-      fs.mkdirSync(logPath)
-    }
-
+    const logPathWithDate = path.normalize(`${CURRENT_DIR}/${logDirPath}${logDirName}/${dateStamp}`)
+    this.createFolder(logPath)
+    this.createFolder(logPathWithDate)
     const findRemoveSyncOptions = {
       age: {
         seconds: 604800 // One week.
@@ -42,7 +41,7 @@ class Kantan {
       log.forEach(l => {
         logText += JSON.stringify(l) + ' '
       })
-      fs.appendFileSync(path.normalize(`${logPath}/${logTitle}${dateStamp} ${timeStamp}.log`), logText.replace('\\n"', '": ') + '\n')
+      fs.appendFileSync(path.normalize(`${logPathWithDate}/${logTitle}${dateStamp} ${timeStamp}.log`), logText.replace('\\n"', '": ') + '\n')
     })
   }
 
@@ -53,6 +52,12 @@ class Kantan {
   log () {
     const args = Array.prototype.slice.call(arguments)
     logifier.emit(this.logstamp, args)
+  }
+
+  createFolder (dir) {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir)
+    }
   }
 }
 module.exports = new Kantan()
