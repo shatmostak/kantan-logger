@@ -1,6 +1,6 @@
 {
   "name": "kantan-logger",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "easy logger",
   "main": "index.js",
   "scripts": {
@@ -23,5 +23,9 @@
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1"
-  }
+  },
+  "homepage": "https://github.com/shatmostak/kantan-logger#readme",
+  "bugs": {
+    "url": "https://github.com/shatmostak/kantan-logger/issues"
+  },
 }
