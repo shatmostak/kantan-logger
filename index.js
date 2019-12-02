@@ -15,14 +15,14 @@ const dateformat = require('dateformat')
 
 class Kantan {
   constructor (options) {
-    const defaults = { logTitle: '', logDirPath: '', logDirName: 'logs' }
-    let { logDirPath, logDirName, logTitle } = { ...defaults, ...options }
+    const defaults = { title: '', location: '', directory: 'logs' }
+    let { location, directory, title } = { ...defaults, ...options }
     const now = new Date()
     const timeStamp = dateformat(now, 'HH.MM.ss.l')
     const dateStamp = dateformat(now, 'mm-dd-yy')
     const CURRENT_DIR = path.dirname(require.main.filename)
-    const logPath = path.normalize(`${CURRENT_DIR}/${logDirPath}${logDirName}`)
-    const logPathWithDate = path.normalize(`${CURRENT_DIR}/${logDirPath}${logDirName}/${dateStamp}`)
+    const logPath = path.normalize(`${CURRENT_DIR}/${location}${directory}`)
+    const logPathWithDate = path.normalize(`${CURRENT_DIR}/${location}${directory}/${dateStamp}`)
     this.createFolder(logPath)
     this.createFolder(logPathWithDate)
     const findRemoveSyncOptions = {
@@ -34,14 +34,14 @@ class Kantan {
 
     findRemoveSync(logPath, findRemoveSyncOptions)
     this.logstamp = `${dateStamp} ${timeStamp}.log`
-    logTitle = logTitle.length ? logTitle + ' ' : ''
+    title = title.length ? title + ' ' : ''
     logifier.on(this.logstamp, log => {
       let logText = `[${dateformat(new Date(), 'HH.MM.ss.l')}] `
       log = Array.isArray(log) ? log : [log]
       log.forEach(l => {
         logText += JSON.stringify(l) + ' '
       })
-      fs.appendFileSync(path.normalize(`${logPathWithDate}/${logTitle}${dateStamp} ${timeStamp}.log`), logText.replace('\\n"', '": ') + '\n')
+      fs.appendFileSync(path.normalize(`${logPathWithDate}/${title}${dateStamp} ${timeStamp}.log`), logText.replace('\\n"', '": ') + '\n')
     })
   }
 
