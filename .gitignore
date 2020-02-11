@@ -2,3 +2,4 @@ personalAssets/
 logs/
 node_modules/
 .eslintrc.js
+yarn.lock

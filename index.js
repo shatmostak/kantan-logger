@@ -29,7 +29,7 @@ class Kantan {
       age: {
         seconds: 604800 // One week.
       },
-      extensions: ['.log']
+      dir: '*'
     }
 
     findRemoveSync(logPath, findRemoveSyncOptions)
