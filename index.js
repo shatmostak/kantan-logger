@@ -15,33 +15,50 @@ const dateformat = require('dateformat')
 
 class Kantan {
   constructor (options) {
-    const defaults = { title: '', location: '', directory: 'logs' }
-    let { location, directory, title } = { ...defaults, ...options }
+    const defaults = {
+      title: '',
+      location: '',
+      directory: 'logs',
+      useTimeInTitle: true,
+      useDateDirectories: true,
+      daysTillDelete: 7
+    }
+    let { location, directory, title, useTimeInTitle, useDateDirectories, daysTillDelete } = { ...defaults, ...options }
     const now = new Date()
-    const timeStamp = dateformat(now, 'HH.MM.ss.l')
-    const dateStamp = dateformat(now, 'mm-dd-yy')
+    const timeStampString = 'HH.MM.ss.l'
+    const dateStampString = 'mm-dd-yy'
+    const logTextString = useDateDirectories? timeStampString: `${timeStampString} ${dateStampString}`
+    const timeStamp = dateformat(now, timeStampString)
+    const dateStamp = dateformat(now, dateStampString)
     const CURRENT_DIR = path.dirname(require.main.filename)
     const logPath = path.normalize(`${CURRENT_DIR}/${location}${directory}`)
-    const logPathWithDate = path.normalize(`${CURRENT_DIR}/${location}${directory}/${dateStamp}`)
+    let logPathWithDate = logPath
+    if (useDateDirectories) {
+      logPathWithDate = path.normalize(`${logPath}/${dateStamp}`)
+    }
     this.createFolder(logPath)
     this.createFolder(logPathWithDate)
     const findRemoveSyncOptions = {
       age: {
-        seconds: 604800 // One week.
+        seconds: daysTillDelete * 86400 // One day.
       },
+      extensions: ['.log'],
       dir: '*'
     }
-
     findRemoveSync(logPath, findRemoveSyncOptions)
     this.logstamp = `${dateStamp} ${timeStamp}.log`
     title = title.length ? title + ' ' : ''
     logifier.on(this.logstamp, log => {
-      let logText = `[${dateformat(new Date(), 'HH.MM.ss.l')}] `
+      let logText = `[${dateformat(new Date(), logTextString)}] `
+      let logTitle = `${title}`
+      if (useTimeInTitle && title.length) {
+        logTitle += ` ${dateStamp} ${timeStamp}`
+      }
       log = Array.isArray(log) ? log : [log]
       log.forEach(l => {
         logText += JSON.stringify(l) + ' '
       })
-      fs.appendFileSync(path.normalize(`${logPathWithDate}/${title}${dateStamp} ${timeStamp}.log`), logText.replace('\\n"', '": ') + '\n')
+      fs.appendFileSync(path.normalize(`${logPathWithDate}/${logTitle}.log`), logText.replace('\\n"', '": ') + '\n')
     })
   }
 

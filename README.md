@@ -40,12 +40,18 @@ Option | Default | Notes
 title | '' | *Appends the title to the log file name.*
 location | '' | *Relative from the directory where your main file was run from*
 directory | 'logs' | *Name of the logs directory*
+useTimeInTitle | true | *Use time in the title of the log file*
+useDateDirectories | true | *Separate log files in date directories*
+daysTillDelete | 7 | *Number of days of logs to keep*
 Example:
 ```
 kantan.create({
     title: 'TK-3623',
     location: 'var/',
-    directory: 'my_logs'
+    directory: 'my_logs',
+    useTimeInTitle: false,
+    useDateDirectories: true,
+    daysTillDelete: 14
 })
 ```
 ### Use Case
