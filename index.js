@@ -27,7 +27,7 @@ class Kantan {
     const now = new Date()
     const timeStampString = 'HH.MM.ss.l'
     const dateStampString = 'mm-dd-yy'
-    const logTextString = useDateDirectories? timeStampString: `${timeStampString} ${dateStampString}`
+    const logTextString = useDateDirectories? timeStampString: `${dateStampString} ${timeStampString}`
     const timeStamp = dateformat(now, timeStampString)
     const dateStamp = dateformat(now, dateStampString)
     const CURRENT_DIR = path.dirname(require.main.filename)
