@@ -60,6 +60,14 @@ class Kantan {
       })
       fs.appendFileSync(path.normalize(`${logPathWithDate}/${logTitle}.log`), logText.replace('\\n"', '": ') + '\n')
     })
+    if (!useTimeInTitle || !useDateDirectories) {
+      let logText = `---------- ---------- [${dateformat(new Date(), logTextString)}] ---------- ----------\n`
+      let logTitle = `${title}`
+      if (useTimeInTitle && title.length) {
+        logTitle += ` ${dateStamp} ${timeStamp}`
+      }
+      fs.appendFileSync(path.normalize(`${logPathWithDate}/${logTitle}.log`), logText)
+    }
   }
 
   create (options) {
