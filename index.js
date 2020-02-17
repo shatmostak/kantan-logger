@@ -37,7 +37,6 @@ class Kantan {
       logPathWithDate = path.normalize(`${logPath}/${dateStamp}`)
     }
     this.createFolder(logPath)
-    this.createFolder(logPathWithDate)
     const findRemoveSyncOptions = {
       age: {
         seconds: daysTillDelete * 86400 // One day.
@@ -51,7 +50,8 @@ class Kantan {
     logifier.on(this.logstamp, log => {
       let logText = `[${dateformat(new Date(), logTextString)}] `
       let logTitle = `${title}`
-      if (useTimeInTitle && title.length) {
+      this.createFolder(logPathWithDate)
+      if (useTimeInTitle || !title.length) {
         logTitle += ` ${dateStamp} ${timeStamp}`
       }
       log = Array.isArray(log) ? log : [log]
@@ -61,12 +61,7 @@ class Kantan {
       fs.appendFileSync(path.normalize(`${logPathWithDate}/${logTitle}.log`), logText.replace('\\n"', '": ') + '\n')
     })
     if (!useTimeInTitle || !useDateDirectories) {
-      let logText = `---------- ---------- [${dateformat(new Date(), logTextString)}] ---------- ----------\n`
-      let logTitle = `${title}`
-      if (useTimeInTitle && title.length) {
-        logTitle += ` ${dateStamp} ${timeStamp}`
-      }
-      fs.appendFileSync(path.normalize(`${logPathWithDate}/${logTitle}.log`), logText)
+      logifier.emit(this.logstamp, `---------- ========== [${dateformat(new Date(), logTextString)}] ========== ----------`)
     }
   }
 
