@@ -46,7 +46,7 @@ class Kantan {
     }
     findRemoveSync(logPath, findRemoveSyncOptions)
     this.logstamp = `${dateStamp} ${timeStamp}.log`
-    title = title.length ? title + ' ' : ''
+    title = title.length ? title : ''
     logifier.on(this.logstamp, log => {
       let logText = `[${dateformat(new Date(), logTextString)}] `
       let logTitle = `${title}`
