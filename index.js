@@ -1,6 +1,6 @@
 /*
  * @name       kantan-logger
- * @version    1.0.0
+ * @version    1.0.7
  * @date       2019-11-27
  * @author     Will Shostak <william.shostak@gmail.com> - Matt Shostak <matthewpshostak@gmail.com>
  * @license    ISC License
