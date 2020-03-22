@@ -40,6 +40,8 @@ Option | Default | Notes
 title | '' | *Appends the title to the log file name.*
 location | '' | *Relative from the directory where your main file was run from*
 directory | 'logs' | *Name of the logs directory*
+logLevels | ['success', 'verbose', 'info', 'warning', 'error'] | *Names of the error levels you require*
+logLevelWebhooks | {} | *Object where property is the level you want to make the webhook on the value is the URL to push to*
 useTimeInTitle | true | *Use time in the title of the log file*
 useDateDirectories | true | *Separate log files in date directories*
 daysTillDelete | 7 | *Number of days of logs to keep*
@@ -49,6 +51,10 @@ kantan.create({
     title: 'TK-3623',
     location: 'var/',
     directory: 'my_logs',
+    logLevels: ['ichi', 'ni', 'san', 'shi', 'go'],
+    logLevelWebhooks: {
+      ichi: 'http://www.mysite.com/ichi-data-goes-here'
+    },
     useTimeInTitle: false,
     useDateDirectories: true,
     daysTillDelete: 14
@@ -60,24 +66,39 @@ For example:  You have an app that is always listening for a post, and on each p
 ```
 // server related requires and setup
 const express = require('express')
+const kantan = require('kantan-logger')
+
 const port = process.env.PORT || 3001
 const app = express()
-const kantan = require('kantan-logger')
+
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
 
 // start listening on port
 app.listen(port, () => {
-  console.log('port up on ' + port)
+  console.log(`port up on ${port}`)
 })
 
 // starts listening for POSTs
-app.post('/',function(req, res) {
-  res.writeHead(200, {"Content-Type": "text/html"})
+app.post('/', (req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/html' })
   res.end('Thanks')
   // call new instance of kantan for this post
-  let logger = kantan.create({
+  const logger = kantan.create({
     // tells the logger to create logfile beginning with req.body.ticketId
-    title: req.body.ticketId
+    title: req.body.ticketId,
+    logLevels: ['ichi', 'ni', 'san', 'shi', 'go'],
+    logLevelWebhooks: {
+      ichi: 'http://localhost:3000/ichi-data-goes-here'
+    }
   })
+
+  // calling with log level
+  logger.ichi({
+    info: 'when pushing a webhook the first argument must be an object',
+    moreInfo: 'it can contain any additional parameters you would like to post',
+    andMoreInfo: 'the current log level and message will also be posted as *level* & *message*'
+  }, 'log messages here', 'and another', ['arrays', 'and', 'objects', 'are', 'also', 'ok'])
 
   // more code here...
   logger.log('information logged here')

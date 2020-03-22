@@ -1,6 +1,6 @@
 {
   "name": "kantan-logger",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "easy logger",
   "main": "index.js",
   "scripts": {
@@ -13,17 +13,54 @@
   ],
   "author": "Will Shostak <william.shostak@gmail.com> - Matt Shostak <matthewpshostak@gmail.com>",
   "license": "ISC",
+  "eslintConfig": {
+    "extends": "airbnb-base",
+    "rules": {
+      "semi": [
+        "error",
+        "never"
+      ],
+      "comma-dangle": [
+        "error",
+        "never"
+      ],
+      "arrow-parens": [
+        "error",
+        "as-needed"
+      ],
+      "sort-imports": [
+        "error",
+        {
+          "ignoreMemberSort": true
+        }
+      ],
+      "no-param-reassign": [
+        "error",
+        {
+          "props": false
+        }
+      ],
+      "no-plusplus": [
+        "error",
+        {
+          "allowForLoopAfterthoughts": true
+        }
+      ]
+    },
+    "globals": {
+      "logger": true,
+      "kantan": true
+    }
+  },
   "dependencies": {
+    "axios": "^0.19.2",
     "dateformat": "^3.0.3",
     "find-remove": "^2.0.0"
   },
   "devDependencies": {
-    "eslint": "^6.7.1",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1"
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1"
   },
   "homepage": "https://github.com/shatmostak/kantan-logger#readme",
   "bugs": {
