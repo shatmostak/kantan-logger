@@ -94,13 +94,13 @@ class Kantan {
           const params = args.shift()
           params.level = level
           params.message = Kantan.setlogmessage(args)
-          const { logTitle, logText } = this.setLogTitleText(levelText, ...args)
+          const { logTitle, logText } = this.setLogTitleText([levelText, ...args])
           const webhookResponse = await this.webhook(params)
-          this.cutInQueue(this.setLogTitleText(levelText, webhookResponse))
+          this.cutInQueue(this.setLogTitleText([`WEBHOOK RESPONSE ${levelText}`, webhookResponse]))
           this.cutInQueue({ logTitle, logText })
           this.resumeQueue()
         } else {
-          this.log(levelText, ...args)
+          this.log([levelText, ...args])
         }
       }
     })
@@ -111,20 +111,20 @@ class Kantan {
     let webhookLog = ''
     try {
       const response = await axios.post(this.logLevelWebhooks[level], params)
-      webhookLog = `WEBHOOK RESPONSE: ${this.logLevelWebhooks[level]} - ${response.data}`
+      webhookLog = `${this.logLevelWebhooks[level]} - ${response.data}`
     } catch (error) {
-      webhookLog = `WEBHOOK ERROR: ${error}`
+      webhookLog = `${error}`
     }
     return webhookLog
   }
 
   startLog() {
     if (!this.useTimeInTitle || !this.useDateDirectories) {
-      this.log(this.logstamp, `---------- ========== [${dateformat(new Date(), this.logTextString)}] ========== ----------`)
+      this.log([this.logstamp, `---------- ========== [${dateformat(new Date(), this.logTextString)}] ========== ----------`])
     }
   }
 
-  setLogTitleText(...log) {
+  setLogTitleText(log) {
     let logText = `[${dateformat(new Date(), this.logTextString)}] `
     let logTitle = `${this.title}`
     this.createFolder()
@@ -135,7 +135,7 @@ class Kantan {
     return { logText, logTitle }
   }
 
-  log(...log) {
+  log(log) {
     this.pushToQueue(this.setLogTitleText(log))
   }
 
@@ -154,7 +154,7 @@ class Kantan {
     const logs = Array.isArray(args) ? args : [args]
     let logText = ''
     logs.forEach(log => {
-      logText += `${JSON.stringify(log)} `
+      logText += `${JSON.stringify(log).replace(/^"|"$/gm, '')} `
     })
     return logText
   }
