@@ -120,7 +120,7 @@ class Kantan {
 
   startLog() {
     if (!this.useTimeInTitle || !this.useDateDirectories) {
-      this.log([this.logstamp, `---------- ========== [${dateformat(new Date(), this.logTextString)}] ========== ----------`])
+      this.log([`${this.dateStamp} ${this.timeStamp}`, `---------- ========== [${dateformat(new Date(), this.logTextString)}] ========== ----------`])
     }
   }
 
