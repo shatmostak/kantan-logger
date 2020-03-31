@@ -1,6 +1,6 @@
 {
   "name": "kantan-logger",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "easy logger",
   "main": "index.js",
   "scripts": {

@@ -100,7 +100,7 @@ class Kantan {
           this.cutInQueue({ logTitle, logText })
           this.resumeQueue()
         } else {
-          this.log([levelText, ...args])
+          this.log(levelText, ...args)
         }
       }
     })
@@ -120,23 +120,23 @@ class Kantan {
 
   startLog() {
     if (!this.useTimeInTitle || !this.useDateDirectories) {
-      this.log([`${this.dateStamp} ${this.timeStamp}`, `---------- ========== [${dateformat(new Date(), this.logTextString)}] ========== ----------`])
+      this.log(`---------- ========== [${dateformat(new Date(), this.logTextString)}] ========== ----------`)
     }
   }
 
-  setLogTitleText(log) {
+  setLogTitleText(logs) {
     let logText = `[${dateformat(new Date(), this.logTextString)}] `
     let logTitle = `${this.title}`
     this.createFolder()
     if (this.useTimeInTitle || !this.title.length) {
       logTitle += ` ${this.dateStamp} ${this.timeStamp}`
     }
-    logText += Kantan.setlogmessage(log)
+    logText += Kantan.setlogmessage(logs)
     return { logText, logTitle }
   }
 
-  log(log) {
-    this.pushToQueue(this.setLogTitleText(log))
+  log(...logs) {
+    this.pushToQueue(this.setLogTitleText(logs))
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -146,12 +146,11 @@ class Kantan {
 
   createFolder() {
     if (!fs.existsSync(this.logPathWithDate)) {
-      fs.mkdirSync(this.logPathWithDate)
+      fs.mkdirSync(this.logPathWithDate, { recursive: true })
     }
   }
 
-  static setlogmessage(args) {
-    const logs = Array.isArray(args) ? args : [args]
+  static setlogmessage(logs) {
     let logText = ''
     logs.forEach(log => {
       logText += `${JSON.stringify(log).replace(/^"|"$/gm, '')} `
