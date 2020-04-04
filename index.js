@@ -153,9 +153,9 @@ class Kantan {
   static setlogmessage(logs) {
     let logText = ''
     logs.forEach(log => {
-      logText += `${JSON.stringify(log).replace(/^"|"$/gm, '')} `
+      logText += log ? `${JSON.stringify(log).replace(/^"|"$/gm, '')} ` : 'undefined'
     })
-    return logText
+    return logText.trim()
   }
 }
 module.exports = new Kantan()
