@@ -1,6 +1,6 @@
 /*
  * @name       kantan-logger
- * @version    1.0.8
+ * @version    1.0.12
  * @date       2019-11-27
  * @author     Will Shostak <william.shostak@gmail.com> - Matt Shostak <matthewpshostak@gmail.com>
  * @license    ISC License
@@ -20,7 +20,9 @@ class Kantan {
     logLevelWebhooks = {},
     useTimeInTitle = true,
     useDateDirectories = true,
-    daysTillDelete = 7
+    daysTillDelete = 7,
+    prettyJSON = true,
+    prettyText = true
   } = {}) {
     this.title = title
     this.location = location
@@ -30,6 +32,8 @@ class Kantan {
     this.useTimeInTitle = useTimeInTitle
     this.useDateDirectories = useDateDirectories
     this.daysTillDelete = daysTillDelete
+    this.prettyJSON = prettyJSON
+    this.prettyText = prettyText
     this.paused = false
     this.queue = []
     this.backQueue = []
@@ -93,7 +97,7 @@ class Kantan {
           this.paused = true
           const params = args.shift()
           params.level = level
-          params.message = Kantan.setlogmessage(args)
+          params.message = this.setLogMessage(args)
           const { logTitle, logText } = this.setLogTitleText([levelText, ...args])
           const webhookResponse = await this.webhook(params)
           this.cutInQueue(this.setLogTitleText([`WEBHOOK RESPONSE ${levelText}`, webhookResponse]))
@@ -131,7 +135,7 @@ class Kantan {
     if (this.useTimeInTitle || !this.title.length) {
       logTitle += ` ${this.dateStamp} ${this.timeStamp}`
     }
-    logText += Kantan.setlogmessage(logs)
+    logText += this.setLogMessage(logs)
     return { logText, logTitle }
   }
 
@@ -150,10 +154,15 @@ class Kantan {
     }
   }
 
-  static setlogmessage(logs) {
+  setLogMessage(logs) {
     let logText = ''
     logs.forEach(log => {
-      logText += log ? `${JSON.stringify(log).replace(/^"|"$/gm, '')} ` : 'undefined'
+      const stringifyArgs = this.prettyJSON ? [log, null, 2] : [log]
+      if (this.prettyText && typeof log === 'string') {
+        logText += `${log} `
+      } else {
+        logText += log ? `${JSON.stringify(...stringifyArgs).replace(/^"|"$/gm, '')} ` : 'undefined'
+      }
     })
     return logText.trim()
   }

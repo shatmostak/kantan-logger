@@ -46,6 +46,8 @@ logLevelWebhooks | {} | *Object where property is the log level you want to make
 useTimeInTitle | true | *Use time in the title of the log file*
 useDateDirectories | true | *Separate log files in date directories*
 daysTillDelete | 7 | *Number of days of logs to keep*
+prettyJSON | true | *Prettify JSON*
+prettyText | true | *Formatted text without string literals*
 Example:
 ```
 kantan.create({
