@@ -1,7 +1,5 @@
 /*
  * @name       kantan-logger
- * @version    1.0.12
- * @date       2019-11-27
  * @author     Will Shostak <william.shostak@gmail.com> - Matt Shostak <matthewpshostak@gmail.com>
  * @license    ISC License
  */
@@ -158,10 +156,11 @@ class Kantan {
     let logText = ''
     logs.forEach(log => {
       const stringifyArgs = this.prettyJSON ? [log, null, 2] : [log]
-      if (this.prettyText && typeof log === 'string') {
-        logText += `${log} `
+      const startWith = /\n$/.test(logText) ? '' : ' '
+      if (typeof log === 'string') {
+        logText += `${startWith}${this.prettyText ? log : JSON.stringify(...stringifyArgs).replace(/^"|"$/gm, '')}`
       } else {
-        logText += log ? `${JSON.stringify(...stringifyArgs).replace(/^"|"$/gm, '')} ` : 'undefined'
+        logText += `${startWith}${log ? JSON.stringify(...stringifyArgs) : 'undefined'}`
       }
     })
     return logText.trim()
