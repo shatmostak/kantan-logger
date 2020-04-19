@@ -117,7 +117,7 @@ class Kantan {
     } catch (error) {
       const { status, statusText, data } = error.response || {
         data: error.message,
-        statusText: error.errno,
+        statusText: 'Service Unavailable',
         status: 503
       }
       const errorMessage = data && typeof data === 'string' ? `'${data}' ` : ''
