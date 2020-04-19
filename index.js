@@ -113,7 +113,7 @@ class Kantan {
     let webhookLog = ''
     try {
       const response = await axios.post(this.logLevelWebhooks[level], params)
-      webhookLog = `${this.logLevelWebhooks[level]} - ${response.data}`
+      webhookLog = `${this.logLevelWebhooks[level]} - '${response.data}'`
     } catch (error) {
       const { status, statusText, data } = error.response || {
         data: error.message,
