@@ -159,9 +159,24 @@ class Kantan {
   }
 
   setLogMessage(logs) {
+    const getCircularReplacer = () => {
+      const seen = new WeakSet()
+      return (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+          if (seen.has(value)) {
+            return
+          }
+          seen.add(value)
+        }
+        // eslint-disable-next-line consistent-return
+        return value
+      }
+    }
     let logText = ''
     logs.forEach(log => {
-      const stringifyArgs = this.prettyJSON ? [log, null, 2] : [log]
+      const stringifyArgs = this.prettyJSON
+        ? [log, getCircularReplacer(), 2]
+        : [log, getCircularReplacer()]
       const startWith = /\n$/.test(logText) ? '' : ' '
       if (typeof log === 'string') {
         logText += `${startWith}${this.prettyText ? log : JSON.stringify(...stringifyArgs).replace(/^"|"$/gm, '')}`
