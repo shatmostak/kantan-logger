@@ -48,6 +48,10 @@ useDateDirectories | true | *Separate log files in date directories*
 daysTillDelete | 7 | *Number of days of logs to keep*
 prettyJSON | true | *Prettify JSON*
 prettyText | true | *Formatted text without string literals*
+echoToConsole | false | *Echos logs to the console*
+useJSON | false | *Outputs logs in JSON*
+showMemoryUsage | false | *Shows memory usage*
+
 Example:
 ```
 kantan.create({

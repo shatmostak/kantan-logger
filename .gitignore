@@ -44,6 +44,7 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+test/node-red/node_modules/
 
 # TypeScript v1 declaration files
 typings/
@@ -69,6 +70,10 @@ typings/
 # dotenv environment variables file
 .env
 .env.test
+.env.local
+.env.*.local
+!test/.env
+!test/node-red/.env
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -111,6 +116,22 @@ temp/
 package-lock.json
 yarn.lock
 
-# End of https://www.gitignore.io/api/node
+# system files
+.DS_Store
 
-test-logs.js
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# End of https://www.gitignore.io/api/node
+test*.*
+example*.*
+
+# cypress files
+cypress/videos
+cypress/screenshots

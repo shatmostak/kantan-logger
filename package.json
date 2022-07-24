@@ -1,11 +1,8 @@
 {
   "name": "kantan-logger",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "easy logger",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [
     "easy",
     "logger",
@@ -13,6 +10,18 @@
   ],
   "author": "Will Shostak <william.shostak@gmail.com> - Matt Shostak <matthewpshostak@gmail.com>",
   "license": "ISC",
+  "scripts": {
+    "coverage": "nyc --reporter=html --reporter=text --reporter=cobertura mocha",
+    "test": "mocha"
+  },
+  "mocha": {
+    "reporter": "./test/junit-spec-reporter.js"
+  },
+  "nyc": {
+    "exclude": [
+      "configs/"
+    ]
+  },
   "eslintConfig": {
     "env": {
       "node": true,
@@ -20,13 +29,13 @@
       "mocha": true
     },
     "extends": [
+      "plugin:chai-friendly/recommended",
       "airbnb-base"
     ],
     "plugins": [
       "node",
       "security",
-      "prettier",
-      "mocha"
+      "prettier"
     ],
     "rules": {
       "semi": [
@@ -70,9 +79,7 @@
     },
     "globals": {
       "logger": true,
-      "kantan": true,
-      "logToDB": true,
-      "configs": true
+      "kantan": true
     }
   },
   "dependencies": {
@@ -81,14 +88,21 @@
     "find-remove": "^2.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.1.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-chai-friendly": "^0.7.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.3.0",
     "eslint-plugin-security": "^1.4.0",
-    "prettier": "^2.2.1"
+    "mocha": "^6.1.4",
+    "mocha-junit-reporter": "^2.0.2",
+    "nyc": "^15.1.0",
+    "prettier": "^2.2.1",
+    "prettier-eslint": "^12.0.0"
   },
   "homepage": "https://github.com/shatmostak/kantan-logger#readme",
   "bugs": {
