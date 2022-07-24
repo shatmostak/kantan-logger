@@ -1,6 +1,6 @@
 # Kantan Logger
 
-A simple but hopefully versitale logger.
+A simple but hopefully versatile logger.
 Kantan Logger creates a log directory. In that directory Kantan Logger creates a directory with the date *(MM.DD.YY)*. Logs are then titled with a time stamp *(HH.MM.SS.MMM)* of when it was created. 
 
 ## Installing

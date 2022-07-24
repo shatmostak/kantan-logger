@@ -2,7 +2,9 @@
   "version": "0.2",
   "language": "en",
   "words": [
-    "cobertura"
+    "cobertura",
+    "ichi",
+    "logfile"
   ],
   "flagWords": []
 }
