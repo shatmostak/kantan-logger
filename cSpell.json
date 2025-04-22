@@ -3,8 +3,19 @@
   "language": "en",
   "words": [
     "cobertura",
+    "dotenv",
+    "eslintcache",
     "ichi",
-    "logfile"
+    "jscoverage",
+    "jspm",
+    "logfile",
+    "njsproj",
+    "ntvs",
+    "nuxt",
+    "pids",
+    "rollup",
+    "vuepress",
+    "wscript"
   ],
   "flagWords": []
 }

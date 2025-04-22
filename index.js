@@ -104,19 +104,15 @@ class Kantan {
       const {
         logTitle, logText, logObject, logArgs
       } = this.queue.shift()
-      if (this.useJSON && logObject) {
-        const file = path.normalize(`${this.logPathWithDate}/${logTitle}.json`)
-        let logData = [logObject]
-        if (fs.existsSync(file)) {
-          logData = [...JSON.parse(fs.readFileSync(file, 'utf8')), logObject]
-        }
-        fs.writeFileSync(file, this.setLogMessage([logData]))
-      } else if (!this.useJSON && logText) {
-        fs.appendFileSync(
-          path.normalize(`${this.logPathWithDate}/${logTitle}.log`),
-          `${logText.replace('\\n"', '": ')}\n`
-        )
-      }
+      const useJSON = this.useJSON && logObject
+      const ext = useJSON ? 'jsonl' : 'log'
+      const filePath = path.normalize(`${this.logPathWithDate}/${logTitle}.${ext}`)
+      const payload = useJSON
+        ? `${JSON.stringify(logObject, this.getCircularReplacer())}\n`
+        : `${logText.replace('\\n"', '": ')}\n`
+
+      fs.appendFileSync(filePath, payload)
+
       if (this.echoToConsole) {
         // eslint-disable-next-line no-console
         console.log(logArgs || logText)

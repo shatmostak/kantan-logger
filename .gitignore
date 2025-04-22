@@ -132,6 +132,5 @@ yarn.lock
 test*.*
 example*.*
 
-# cypress files
-cypress/videos
-cypress/screenshots
+# Husky
+.husky
