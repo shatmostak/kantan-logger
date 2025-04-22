@@ -5,14 +5,11 @@ Kantan Logger creates a log directory. In that directory Kantan Logger creates a
 
 ## Installing
 
-Install via npm
+Install via pnpm
 ```
-npm i kantan-logger
+pnpm i kantan-logger
 ```
-or yarn
-```
-yarn add kantan-logger
-```
+
 
 ## Getting Started
 ```js
