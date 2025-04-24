@@ -122,7 +122,7 @@ class Kantan {
 
   setLogLevels() {
     this.logLevels.forEach(logLevel => {
-      this[logLevel] = async (...args) => {
+      this[logLevel] = (...args) => {
         const levelText = `${logLevel.toUpperCase()}:`
         const { logTitle, logText } = this.setLogTitleText([levelText, ...args])
         const logArgs = JSON.parse(JSON.stringify(args))
@@ -135,26 +135,28 @@ class Kantan {
             time: dateformat(new Date(), this.logTextString),
             channel: this.title,
             messages: logArgs
-          },
-          logArgs
+          }
         }
-        if (this.showMemoryUsage) {
-          logOutput.logObject.memoryUsage = process.memoryUsage()
-        }
-        if (typeof this.logLevelWebhooks[logLevel] !== 'undefined' && typeof args[0] === 'object') {
-          this.paused = true
-          const params = args.shift()
-          params.level = logLevel
-          params.message = this.setLogMessage(args)
-          const webhookResponse = await this.webhook(params)
-          this.cutInQueue({
-            ...logOutput,
-            ...this.setLogTitleText([`WEBHOOK RESPONSE ${levelText}`, webhookResponse])
+
+        // 1) enqueue exactly one log entry
+        this.pushToQueue(logOutput)
+
+        // 2) if we have a webhook URL AND args[0] is an object, call it
+        const webhookUrl = this.logLevelWebhooks[logLevel]
+        if (webhookUrl && typeof args[0] === 'object') {
+          // build params for the webhook
+          const [firstArg, ...rest] = logArgs
+          const params = {
+            ...firstArg,
+            level: logLevel,
+            message: this.setLogMessage(rest)
+          }
+
+          // fire-and-forget; won't queue anything else
+          this.webhook(params).catch(err => {
+            // optionally write error to console or a separate file
+            if (this.echoToConsole) console.error('Webhook failed:', err)
           })
-          this.cutInQueue(logOutput)
-          this.resumeQueue()
-        } else {
-          this.pushToQueue(logOutput)
         }
       }
     })
