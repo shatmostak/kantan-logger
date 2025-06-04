@@ -126,13 +126,15 @@ class Kantan {
         const levelText = `${logLevel.toUpperCase()}:`
         const { logTitle, logText } = this.setLogTitleText([levelText, ...args])
         const logArgs = JSON.parse(JSON.stringify(args))
+        const now = new Date()
+        const timestamp = now.getTime()
         const logOutput = {
           logTitle,
           logText,
           logLevel,
           logObject: {
             level: logLevel,
-            time: dateformat(new Date(), this.logTextString),
+            time: this.useJSON ? timestamp : dateformat(new Date(), this.logTextString),
             channel: this.title,
             messages: logArgs
           }
@@ -181,7 +183,7 @@ class Kantan {
   }
 
   startLog() {
-    if (!this.useTimeInTitle || !this.useDateDirectories) {
+    if ((!this.useTimeInTitle || !this.useDateDirectories) && !this.useJSON) {
       this.pushToQueue({
         logTitle: this.title,
         logText: `---------- ========== [${dateformat(new Date(), this.logTextString)}] ========== ----------`,
