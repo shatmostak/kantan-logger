@@ -3,18 +3,17 @@
  * @author     Will Shostak <william.shostak@gmail.com> - Matt Shostak <matthewpshostak@gmail.com>
  * @license    ISC License
  */
-const findRemoveSync = require('find-remove')
 const axios = require('axios')
 const fs = require('fs')
 const path = require('path')
 const dateformat = require('dateformat')
 
+// Proxy handler enables dynamic log level methods (e.g., logger.custom() -> logger.log())
 const handler = {
   get(target, propKey) {
     if (typeof target[propKey] === 'undefined') {
       target[propKey] = target.log
     }
-
     return target[propKey].bind(target)
   }
 }
@@ -38,7 +37,7 @@ class Kantan {
     this.title = title
     this.location = location
     this.directory = directory
-    this.logLevels = [...new Set(logLevels), 'log']
+    this.logLevels = [...new Set(logLevels), 'log'] // Ensure 'log' is always available
     this.logLevelWebhooks = logLevelWebhooks
     this.useTimeInTitle = useTimeInTitle
     this.useDateDirectories = useDateDirectories
@@ -51,6 +50,8 @@ class Kantan {
     this.paused = false
     this.queue = []
     this.backQueue = []
+
+    // Initialize timestamps
     this.now = new Date()
     this.dateStampString = 'mm-dd-yy'
     this.timeStampString = 'HH.MM.ss.l'
@@ -59,10 +60,13 @@ class Kantan {
       ? this.timeStampString
       : `${this.dateStampString} ${this.timeStampString}`
     this.timeStamp = dateformat(this.now, this.timeStampString)
-    this.logPath = path.normalize(`${path.dirname(require.main.filename)}/${location}${directory}`)
+
+    // Build log paths
+    this.logPath = path.join(`${path.dirname(require.main.filename)}/${location}${directory}`)
     this.logPathWithDate = useDateDirectories
-      ? path.normalize(`${this.logPath}/${this.dateStamp}`)
+      ? path.join(`${this.logPath}/${this.dateStamp}`)
       : this.logPath
+
     this.createFolder()
     this.removeOldLogs()
     this.setLogLevels()
@@ -70,15 +74,93 @@ class Kantan {
   }
 
   removeOldLogs() {
-    findRemoveSync(this.logPath, {
-      age: {
-        seconds: this.daysTillDelete * 86400 // One day.
-      },
-      extensions: ['.log'],
-      dir: '*'
-    })
+    const days = Number.isFinite(this.daysTillDelete) ? Math.max(0, this.daysTillDelete) : 7
+    const cutoffMs = Date.now() - days * 86400 * 1000
+
+    if (fs.existsSync(this.logPath)) {
+      try {
+        this.pruneOldEntries(this.logPath, cutoffMs)
+      } catch (e) {
+        if (this.echoToConsole) {
+          console.error('removeOldLogs error:', e)
+        }
+      }
+    }
   }
 
+  // Recursively remove old files/dirs but preserve current date directory structure
+  pruneOldEntries(dir, cutoffMs) {
+    let entries = []
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true })
+    } catch (e) {
+      if (this.echoToConsole) {
+        console.error(`pruneOldEntries: readdir failed for ${dir}: ${e.message}`)
+      }
+    }
+
+    const currentDateDirAbs = path.resolve(this.logPathWithDate)
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name)
+      const fullAbs = path.resolve(full)
+      let toConsole = false
+      let stat
+
+      try {
+        stat = fs.lstatSync(fullAbs) // Use lstat to not follow symlinks
+      } catch (e) {
+        toConsole = `pruneOldEntries: stat failed for ${fullAbs}: ${e.message}`
+      }
+
+      if (stat) {
+        // Remove old symlinks without following them
+        if (stat.isSymbolicLink()) {
+          if (stat.mtimeMs < cutoffMs) {
+            try {
+              fs.unlinkSync(fullAbs)
+            } catch (e) {
+              toConsole = `pruneOldEntries: unlink symlink failed for ${fullAbs}: ${e.message}`
+            }
+          }
+        } else if (stat.isDirectory()) {
+          if (fullAbs === currentDateDirAbs) {
+            // Clean contents of current date dir but don't remove the dir itself
+            this.pruneOldEntries(fullAbs, cutoffMs)
+          } else if (stat.mtimeMs < cutoffMs) {
+            // Remove old directories completely
+            try {
+              fs.rmSync(fullAbs, { recursive: true, force: true })
+            } catch (e) {
+              toConsole = `pruneOldEntries: rm dir failed for ${fullAbs}: ${e.message}`
+            }
+          } else {
+            // Clean newer directories and try to remove if empty
+            this.pruneOldEntries(fullAbs, cutoffMs)
+            try {
+              fs.rmdirSync(fullAbs)
+            } catch (_) {
+              // not empty or in use; keep
+            }
+          }
+        } else if (stat.mtimeMs < cutoffMs) {
+          // Remove old files
+          try {
+            fs.unlinkSync(fullAbs)
+          } catch (e) {
+            toConsole = `pruneOldEntries: unlink failed for ${fullAbs}: ${e.message}`
+          }
+        }
+      }
+
+      if (toConsole && this.echoToConsole) {
+        console.error(toConsole)
+      }
+    }
+  }
+
+  // Resume queue processing by merging backQueue with main queue
   resumeQueue() {
     this.queue = [...this.queue, ...this.backQueue]
     this.backQueue = []
@@ -86,10 +168,12 @@ class Kantan {
     this.appendToLogs()
   }
 
+  // Add item to front of backQueue
   cutInQueue(args) {
     this.backQueue.unshift(args)
   }
 
+  // Add to appropriate queue based on paused state
   pushToQueue(args) {
     if (this.paused) {
       this.backQueue.push(args)
@@ -99,6 +183,7 @@ class Kantan {
     }
   }
 
+  // Process all queued log entries
   appendToLogs() {
     while (this.queue.length) {
       const {
@@ -106,7 +191,7 @@ class Kantan {
       } = this.queue.shift()
       const useJSON = this.useJSON && logObject
       const ext = useJSON ? 'jsonl' : 'log'
-      const filePath = path.normalize(`${this.logPathWithDate}/${logTitle}.${ext}`)
+      const filePath = path.join(`${this.logPathWithDate}/${logTitle}.${ext}`)
       const payload = useJSON
         ? `${JSON.stringify(logObject, this.getCircularReplacer())}\n`
         : `${logText.replace('\\n"', '": ')}\n`
@@ -120,6 +205,7 @@ class Kantan {
     }
   }
 
+  // Create dynamic log level methods
   setLogLevels() {
     this.logLevels.forEach(logLevel => {
       this[logLevel] = (...args) => {
@@ -140,13 +226,11 @@ class Kantan {
           }
         }
 
-        // 1) enqueue exactly one log entry
         this.pushToQueue(logOutput)
 
-        // 2) if we have a webhook URL AND args[0] is an object, call it
+        // Send webhook if configured for this log level
         const webhookUrl = this.logLevelWebhooks[logLevel]
         if (webhookUrl && typeof args[0] === 'object') {
-          // build params for the webhook
           const [firstArg, ...rest] = logArgs
           const params = {
             ...firstArg,
@@ -154,16 +238,17 @@ class Kantan {
             message: this.setLogMessage(rest)
           }
 
-          // fire-and-forget; won't queue anything else
           this.webhook(params).catch(err => {
-            // optionally write error to console or a separate file
-            if (this.echoToConsole) console.error('Webhook failed:', err)
+            if (this.echoToConsole) {
+              console.error('Webhook failed:', err)
+            }
           })
         }
       }
     })
   }
 
+  // Send HTTP webhook with error handling
   async webhook(params) {
     const { level } = params
     let webhookLog = ''
@@ -182,6 +267,7 @@ class Kantan {
     return webhookLog
   }
 
+  // Add initial time marker log entry
   startLog() {
     if ((!this.useTimeInTitle || !this.useDateDirectories) && !this.useJSON) {
       this.pushToQueue({
@@ -196,6 +282,7 @@ class Kantan {
     }
   }
 
+  // Build log title and formatted text with timestamp
   setLogTitleText(logs) {
     let logText = `[${dateformat(new Date(), this.logTextString)}] `
     let logTitle = `${this.title}`
@@ -210,18 +297,20 @@ class Kantan {
     return { logText, logTitle }
   }
 
+  // Factory method to create new logger instances
   // eslint-disable-next-line class-methods-use-this
   create(options) {
     return new Proxy(new Kantan(options), handler)
-    // return new Kantan(options)
   }
 
+  // Ensure log directory exists
   createFolder() {
     if (!fs.existsSync(this.logPathWithDate)) {
       fs.mkdirSync(this.logPathWithDate, { recursive: true })
     }
   }
 
+  // Handle circular references in JSON serialization
   // eslint-disable-next-line class-methods-use-this
   getCircularReplacer() {
     const seen = new WeakSet()
@@ -237,6 +326,7 @@ class Kantan {
     }
   }
 
+  // Format multiple log arguments into a single message string
   setLogMessage(logs) {
     let logText = ''
     logs.forEach(log => {
