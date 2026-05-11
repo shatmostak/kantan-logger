@@ -112,7 +112,7 @@
     }
   },
   "dependencies": {
-    "axios": "^0.30.0",
+    "axios": "^0.31.1",
     "dateformat": "^3.0.3",
     "find-remove": "^2.0.0"
   },
